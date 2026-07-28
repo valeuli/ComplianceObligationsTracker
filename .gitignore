@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Database
+*.db
+*.sqlite3
+
+# Next.js
+node_modules/
+.next/
+out/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+
+# Testing
+coverage/
+htmlcov/
