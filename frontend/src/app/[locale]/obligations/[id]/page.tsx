@@ -6,7 +6,7 @@ import { getObligation, ApiRequestError } from '@/features/obligations/api/oblig
 import { ButtonLink } from '@/components/ui/button'
 import { DeleteObligationButton } from '@/features/obligations/components/delete-obligation-button'
 import { StatusBadge } from '@/features/obligations/components/status-badge'
-import { TransitionActionForm } from '@/features/obligations/components/transition-action-form'
+import { TransitionOptionsPanel } from '@/features/obligations/components/transition-options-panel'
 import type { ObligationDetail } from '@/features/obligations/types'
 import {
   formatDate,
@@ -14,7 +14,6 @@ import {
   getDictionary,
   normalizeLocale,
   sortAuditHistoryChronologically,
-  translateTransitionReason,
 } from '@/features/obligations/presentation'
 
 type PageProps = {
@@ -126,46 +125,13 @@ export default async function ObligationDetailPage({ params }: PageProps) {
               </div>
             </div>
 
-            <div className="mt-4 grid gap-3">
-              {obligation.transition_options.length === 0 ? (
-                <p className="text-sm text-slate-600">{dictionary.detail.noTransitions}</p>
-              ) : (
-                obligation.transition_options.map((option) =>
-                  option.enabled ? (
-                    <TransitionActionForm
-                      key={option.status}
-                      locale={locale}
-                      obligationId={id}
-                      expectedVersion={obligation.version}
-                      targetStatus={option.status}
-                      dictionary={dictionary}
-                    />
-                  ) : (
-                    <div
-                      key={option.status}
-                      className="rounded-2xl border border-slate-200 bg-slate-50 p-4 opacity-80"
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div className="space-y-1">
-                          <StatusBadge status={option.status} label={dictionary.statuses[option.status]} />
-                          <p className="text-sm text-slate-600">
-                            {dictionary.detail.transitionDisabled}
-                            {option.reason ? ` · ${translateTransitionReason(option.reason, dictionary)}` : ''}
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          disabled
-                          className="cursor-not-allowed rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-400"
-                        >
-                          {dictionary.detail.transitionTo} {dictionary.statuses[option.status]}
-                        </button>
-                      </div>
-                    </div>
-                  ),
-                )
-              )}
-            </div>
+            <TransitionOptionsPanel
+              locale={locale}
+              obligationId={id}
+              expectedVersion={obligation.version}
+              transitionOptions={obligation.transition_options}
+              dictionary={dictionary}
+            />
           </article>
         </section>
 
