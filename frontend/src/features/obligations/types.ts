@@ -10,10 +10,25 @@ export type Locale = (typeof locales)[number]
 export const statusFilters = ['all', ...obligationStatuses] as const
 export type StatusFilter = (typeof statusFilters)[number]
 
+export const transitionReasons = ['document_required', 'invalid_transition'] as const
+export type TransitionReason = (typeof transitionReasons)[number]
+
+export const apiErrorCodes = [
+  'api_error',
+  'invalid_response',
+  'invalid_transition',
+  'network_error',
+  'not_found',
+  'required_document_missing',
+  'validation_error',
+  'version_conflict',
+] as const
+export type ApiErrorCode = (typeof apiErrorCodes)[number]
+
 export interface TransitionOption {
   status: ObligationStatus
   enabled: boolean
-  reason: string | null
+  reason: TransitionReason | null
 }
 
 export interface AuditEntry {
@@ -43,7 +58,12 @@ export interface ObligationDetail extends ObligationSummary {
 }
 
 export interface ApiError {
-  code: string
+  code: ApiErrorCode
   message: string
   status: number
 }
+
+export type TransitionActionState =
+  | { status: 'idle' }
+  | { status: 'success' }
+  | { status: 'error'; code: ApiErrorCode }

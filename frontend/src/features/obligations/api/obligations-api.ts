@@ -1,5 +1,8 @@
 import type {
   ApiError as ApiErrorBody,
+  ApiErrorCode,
+  AuditEntry,
+  ObligationDetail,
   ObligationStatus,
   ObligationSummary,
   ObligationType,
@@ -10,7 +13,7 @@ const apiUrl = process.env.API_URL ?? 'http://127.0.0.1:8000'
 
 class ApiRequestError extends Error implements ApiErrorBody {
   constructor(
-    public readonly code: string,
+    public readonly code: ApiErrorCode,
     message: string,
     public readonly status: number,
   ) {
@@ -20,14 +23,48 @@ class ApiRequestError extends Error implements ApiErrorBody {
 }
 
 export async function listObligations(): Promise<ObligationSummary[]> {
+  const payload = await requestJson('/api/obligations')
+
+  if (!isUnknownArray(payload)) {
+    throw new ApiRequestError('invalid_response', 'The obligations API returned an invalid payload.', 502)
+  }
+
+  return payload.map(parseObligationSummary)
+}
+
+export async function getObligation(obligationId: string): Promise<ObligationDetail> {
+  const payload = await requestJson(`/api/obligations/${obligationId}`)
+  return parseObligationDetail(payload)
+}
+
+export async function transitionObligation(
+  obligationId: string,
+  targetStatus: ObligationStatus,
+  expectedVersion: number,
+): Promise<ObligationDetail> {
+  const payload = await requestJson(`/api/obligations/${obligationId}/transitions`, {
+    method: 'POST',
+    body: JSON.stringify({
+      target_status: targetStatus,
+      expected_version: expectedVersion,
+    }),
+  })
+
+  return parseObligationDetail(payload)
+}
+
+async function requestJson(path: string, init?: RequestInit): Promise<unknown> {
   let response: Response
 
   try {
-    response = await fetch(`${apiUrl}/api/obligations`, {
+    response = await fetch(`${apiUrl}${path}`, {
       cache: 'no-store',
       headers: {
         Accept: 'application/json',
+        'Content-Type': 'application/json',
+        ...(init?.headers ?? {}),
       },
+      ...init,
     })
   } catch {
     throw new ApiRequestError('network_error', 'Unable to reach the obligations API.', 503)
@@ -39,11 +76,7 @@ export async function listObligations(): Promise<ObligationSummary[]> {
     throw toHttpError(response.status, payload)
   }
 
-  if (!isUnknownArray(payload)) {
-    throw new ApiRequestError('invalid_response', 'The obligations API returned an invalid payload.', 502)
-  }
-
-  return payload.map(parseObligationSummary)
+  return payload
 }
 
 async function readJson(response: Response): Promise<unknown> {
@@ -68,6 +101,19 @@ function toHttpError(status: number, payload: unknown): ApiRequestError {
   return new ApiRequestError('api_error', 'The obligations API request failed.', status)
 }
 
+function parseObligationDetail(value: unknown): ObligationDetail {
+  const summary = parseObligationSummary(value)
+
+  if (!isObject(value)) {
+    throw new ApiRequestError('invalid_response', 'The obligations API returned an invalid obligation.', 502)
+  }
+
+  return {
+    ...summary,
+    audit_history: readAuditHistory(value, 'audit_history'),
+  }
+}
+
 function parseObligationSummary(value: unknown): ObligationSummary {
   if (!isObject(value)) {
     throw new ApiRequestError('invalid_response', 'The obligations API returned an invalid obligation.', 502)
@@ -79,7 +125,7 @@ function parseObligationSummary(value: unknown): ObligationSummary {
     title: readString(value, 'title'),
     description: readString(value, 'description'),
     status: readObligationStatus(value, 'status'),
-    due_date: readString(value, 'due_date'),
+    due_date: readDateString(value, 'due_date'),
     owner: readString(value, 'owner'),
     requires_document: readBoolean(value, 'requires_document'),
     document_name: readNullableString(value, 'document_name'),
@@ -88,6 +134,26 @@ function parseObligationSummary(value: unknown): ObligationSummary {
     overdue: readBoolean(value, 'overdue'),
     transition_options: readTransitionOptions(value, 'transition_options'),
   }
+}
+
+function readAuditHistory(value: Record<string, unknown>, key: string): AuditEntry[] {
+  const raw = value[key]
+
+  if (!isUnknownArray(raw)) {
+    throw new ApiRequestError('invalid_response', `Missing or invalid field ${key}.`, 502)
+  }
+
+  return raw.map((entry) => {
+    if (!isObject(entry)) {
+      throw new ApiRequestError('invalid_response', `Missing or invalid field ${key}.`, 502)
+    }
+
+    return {
+      previous_status: readObligationStatus(entry, 'previous_status'),
+      new_status: readObligationStatus(entry, 'new_status'),
+      changed_at: readString(entry, 'changed_at'),
+    }
+  })
 }
 
 function readTransitionOptions(value: Record<string, unknown>, key: string): TransitionOption[] {
@@ -105,9 +171,23 @@ function readTransitionOptions(value: Record<string, unknown>, key: string): Tra
     return {
       status: readObligationStatus(option, 'status'),
       enabled: readBoolean(option, 'enabled'),
-      reason: readNullableString(option, 'reason'),
+      reason: readNullableTransitionReason(option, 'reason'),
     }
   })
+}
+
+function readNullableTransitionReason(value: Record<string, unknown>, key: string): TransitionOption['reason'] {
+  const raw = value[key]
+
+  if (raw === null) {
+    return null
+  }
+
+  if (raw === 'document_required' || raw === 'invalid_transition') {
+    return raw
+  }
+
+  throw new ApiRequestError('invalid_response', `Missing or invalid field ${key}.`, 502)
 }
 
 function readString(value: Record<string, unknown>, key: string): string {
@@ -117,6 +197,11 @@ function readString(value: Record<string, unknown>, key: string): string {
     throw new ApiRequestError('invalid_response', `Missing or invalid field ${key}.`, 502)
   }
 
+  return raw
+}
+
+function readDateString(value: Record<string, unknown>, key: string): string {
+  const raw = readString(value, key)
   return raw
 }
 
@@ -179,7 +264,7 @@ function readObligationType(value: Record<string, unknown>, key: string): Obliga
   return raw
 }
 
-function isErrorBody(value: unknown): value is { code: string; message: string } {
+function isErrorBody(value: unknown): value is { code: ApiErrorCode; message: string } {
   return isObject(value) && typeof value.code === 'string' && typeof value.message === 'string'
 }
 

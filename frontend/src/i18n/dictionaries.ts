@@ -36,6 +36,9 @@ export interface Dictionary {
     noResults: string
     emptyState: string
     dueSoon: string
+    documentName: string
+    companyTaxIdMasked: string
+    currentVersion: string
   }
   statuses: {
     pending: string
@@ -48,6 +51,35 @@ export interface Dictionary {
     franchise_tax: string
     boi_report: string
     registered_agent_renewal: string
+  }
+  detail: {
+    title: string
+    description: string
+    backToDashboard: string
+    overview: string
+    transitions: string
+    auditTrail: string
+    auditTrailDescription: string
+    noDocument: string
+    noAuditTrail: string
+    noTransitions: string
+    loadingAudit: string
+    transitioning: string
+    currentRecordChanged: string
+    invalidTransition: string
+    documentRequired: string
+    networkError: string
+    genericError: string
+    reloadRecord: string
+    retry: string
+    transitionTo: string
+    noDocumentHint: string
+    transitionDisabled: string
+    onTime: string
+  }
+  reasons: {
+    document_required: string
+    invalid_transition: string
   }
 }
 

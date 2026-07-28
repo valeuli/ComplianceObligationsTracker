@@ -2,8 +2,10 @@ import { dictionaries, type Dictionary } from '@/i18n/dictionaries'
 import {
   locales,
   type Locale,
+  type AuditEntry,
   type ObligationStatus,
   type ObligationSummary,
+  type TransitionReason,
   type StatusFilter,
 } from './types'
 
@@ -78,6 +80,22 @@ export function formatDate(value: string, locale: Locale): string {
 
 export function isDueSoon(value: string, days: number): boolean {
   return isDueWithinDays(value, days, startOfUtcDay(new Date()))
+}
+
+export function sortAuditHistoryChronologically(entries: AuditEntry[]): AuditEntry[] {
+  return [...entries].sort((left, right) => left.changed_at.localeCompare(right.changed_at))
+}
+
+export function translateTransitionReason(reason: TransitionReason, dictionary: Dictionary): string {
+  return dictionary.reasons[reason]
+}
+
+export function formatDateTime(value: string, locale: Locale): string {
+  return new Intl.DateTimeFormat(locale === 'es' ? 'es-CO' : 'en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'UTC',
+  }).format(new Date(value))
 }
 
 export function normalizeStatusFilter(status: string): StatusFilter {
