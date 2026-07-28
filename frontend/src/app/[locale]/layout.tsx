@@ -2,11 +2,7 @@ import type { ReactNode } from 'react'
 
 import { notFound } from 'next/navigation'
 
-import { availableLocales, normalizeLocale } from '@/features/obligations/presentation'
-
-export function generateStaticParams() {
-  return availableLocales.map((locale) => ({ locale }))
-}
+import { normalizeLocale } from '@/features/obligations/presentation'
 
 export default async function LocaleLayout({
   children,

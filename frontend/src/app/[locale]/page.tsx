@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-
+import { connection } from 'next/server'
 import { listObligations } from '@/features/obligations/api/obligations-api'
 import { Dashboard } from '@/features/obligations/components/dashboard'
 import {
@@ -20,6 +20,7 @@ type PageProps = {
 }
 
 export default async function LocalePage({ params, searchParams }: PageProps) {
+  await connection()
   const { locale: localeParam } = await params
   const locale = normalizeLocale(localeParam)
   if (!locale) {
