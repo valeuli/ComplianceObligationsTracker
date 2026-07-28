@@ -2,6 +2,7 @@ import type {
   ApiError as ApiErrorBody,
   ApiErrorCode,
   AuditEntry,
+  CreateObligationInput,
   ObligationDetail,
   ObligationStatus,
   ObligationSummary,
@@ -47,6 +48,24 @@ export async function transitionObligation(
     body: JSON.stringify({
       target_status: targetStatus,
       expected_version: expectedVersion,
+    }),
+  })
+
+  return parseObligationDetail(payload)
+}
+
+export async function createObligation(input: CreateObligationInput): Promise<ObligationDetail> {
+  const payload = await requestJson('/api/obligations', {
+    method: 'POST',
+    body: JSON.stringify({
+      type: input.type,
+      title: input.title,
+      description: input.description,
+      due_date: input.due_date,
+      owner: input.owner,
+      requires_document: input.requires_document,
+      document_name: input.document_name,
+      company_tax_id: input.company_tax_id,
     }),
   })
 

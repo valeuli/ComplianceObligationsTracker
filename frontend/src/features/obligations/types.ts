@@ -67,3 +67,16 @@ export type TransitionActionState =
   | { status: 'idle' }
   | { status: 'success' }
   | { status: 'error'; code: ApiErrorCode }
+
+export interface CreateObligationInput {
+  type: ObligationType
+  title: string
+  description: string
+  due_date: string
+  owner: string
+  requires_document: boolean
+  document_name: string | null
+  company_tax_id: string
+}
+
+export type CreateObligationActionState = { status: 'idle' } | { status: 'error'; code: ApiErrorCode }

@@ -110,7 +110,7 @@ export default async function ObligationDetailPage({ params }: PageProps) {
                 <p className="text-sm font-medium uppercase tracking-[0.18em] text-slate-500">
                   {dictionary.detail.transitions}
                 </p>
-                <p className="mt-1 text-sm text-slate-600">{dictionary.detail.transitionTo} {dictionary.statuses[obligation.status]}.</p>
+                <p className="mt-1 text-sm text-slate-600">{dictionary.detail.selectAvailableTransition}</p>
               </div>
             </div>
 

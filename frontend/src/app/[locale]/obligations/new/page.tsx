@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 
 import { ButtonLink } from '@/components/ui/button'
+import { CreateObligationForm } from '@/features/obligations/components/create-obligation-form'
 import { getDictionary, normalizeLocale } from '@/features/obligations/presentation'
 
 type PageProps = {
@@ -18,22 +19,27 @@ export default async function NewObligationPage({ params }: PageProps) {
   const dictionary = getDictionary(locale)
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-8 text-slate-800 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-2xl rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-sm font-medium uppercase tracking-[0.18em] text-slate-500">{dictionary.detail.title}</p>
-        <h1 className="mt-2 text-2xl font-semibold text-slate-900">{dictionary.actions.newObligation}</h1>
-        <p className="mt-3 text-sm text-slate-600">
-          {locale === 'es'
-            ? 'La creación de obligaciones todavía no está implementada.'
-            : 'Creating obligations is not implemented yet.'}
-        </p>
+    <div className="min-h-screen bg-slate-100 text-slate-800">
+      <header className="border-b border-slate-200 bg-white">
+        <div className="mx-auto max-w-5xl px-4 py-5 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-1">
+              <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-500">{dictionary.create.title}</p>
+              <h1 className="text-2xl font-semibold text-slate-900">{dictionary.create.title}</h1>
+              <p className="max-w-3xl text-sm text-slate-600">{dictionary.app.subtitle}</p>
+              <p className="max-w-3xl text-sm text-slate-600">{dictionary.create.description}</p>
+            </div>
 
-        <div className="mt-6">
-          <ButtonLink href={`/${locale}`} variant="secondary">
-            {dictionary.detail.backToDashboard}
-          </ButtonLink>
+            <ButtonLink href={`/${locale}`} variant="secondary">
+              {dictionary.create.backToDashboard}
+            </ButtonLink>
+          </div>
         </div>
-      </div>
+      </header>
+
+      <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+        <CreateObligationForm locale={locale} dictionary={dictionary} />
+      </main>
     </div>
   )
 }

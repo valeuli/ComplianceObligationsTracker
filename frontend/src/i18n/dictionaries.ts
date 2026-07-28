@@ -10,6 +10,34 @@ export interface Dictionary {
   actions: {
     newObligation: string
   }
+  create: {
+    title: string
+    description: string
+    backToDashboard: string
+    submit: string
+    submitting: string
+    fields: {
+      type: string
+      title: string
+      description: string
+      dueDate: string
+      owner: string
+      requiresDocument: string
+      documentName: string
+      companyTaxId: string
+    }
+    help: {
+      type: string
+      documentOptional: string
+      documentRequired: string
+      companyTaxId: string
+    }
+    errors: {
+      validation: string
+      network: string
+      api: string
+    }
+  }
   filters: {
     label: string
     all: string
@@ -73,6 +101,7 @@ export interface Dictionary {
     reloadRecord: string
     retry: string
     transitionTo: string
+    selectAvailableTransition: string
     noDocumentHint: string
     transitionDisabled: string
     onTime: string

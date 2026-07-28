@@ -9,6 +9,34 @@ export const es: Dictionary = {
   actions: {
     newObligation: 'Nueva obligación',
   },
+  create: {
+    title: 'Crear obligación',
+    description: 'Registra una nueva obligación de cumplimiento y deja que el backend determine su ciclo de vida.',
+    backToDashboard: 'Volver al tablero',
+    submit: 'Crear obligación',
+    submitting: 'Creando...',
+    fields: {
+      type: 'Tipo',
+      title: 'Título',
+      description: 'Descripción',
+      dueDate: 'Vencimiento',
+      owner: 'Responsable',
+      requiresDocument: 'Requiere documento',
+      documentName: 'Nombre del documento',
+      companyTaxId: 'Tax ID',
+    },
+    help: {
+      type: 'Selecciona el tipo de obligación.',
+      documentOptional: 'Déjalo vacío si todavía no hay documento adjunto.',
+      documentRequired: 'Agrega el nombre del documento antes de guardar.',
+      companyTaxId: 'Ingresa el Tax ID completo. Después de crearla solo se mostrará enmascarado.',
+    },
+    errors: {
+      validation: 'Revisa los campos del formulario e inténtalo de nuevo.',
+      network: 'No pudimos conectar con el servidor. Intenta de nuevo.',
+      api: 'No se pudo crear la obligación.',
+    },
+  },
   filters: {
     label: 'Filtrar por estado',
     all: 'Todas',
@@ -72,6 +100,7 @@ export const es: Dictionary = {
     reloadRecord: 'Actualizar registro',
     retry: 'Reintentar',
     transitionTo: 'Cambiar a',
+    selectAvailableTransition: 'Selecciona una transición disponible.',
     noDocumentHint: 'No hay documento adjunto.',
     transitionDisabled: 'Transición deshabilitada',
     onTime: 'Al día',
