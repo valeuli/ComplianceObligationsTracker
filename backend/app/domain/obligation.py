@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 from enum import Enum
+from uuid import UUID
 
 from .errors import InvalidStatusTransition, RequiredDocumentMissing
 
@@ -31,7 +32,7 @@ ALLOWED_STATUS_TRANSITIONS: dict[ObligationStatus, set[ObligationStatus]] = {
 
 @dataclass
 class Obligation:
-    id: int
+    id: UUID
     type: ObligationType
     title: str
     description: str
@@ -43,8 +44,11 @@ class Obligation:
     company_tax_id: str
     version: int
 
+    def available_transitions(self) -> set[ObligationStatus]:
+        return set(ALLOWED_STATUS_TRANSITIONS[self.status])
+
     def transition_to(self, new_status: ObligationStatus) -> None:
-        allowed_statuses = ALLOWED_STATUS_TRANSITIONS[self.status]
+        allowed_statuses = self.available_transitions()
         if new_status not in allowed_statuses:
             raise InvalidStatusTransition(
                 f"Transition from {self.status.value} to {new_status.value} is not allowed."
