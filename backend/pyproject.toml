@@ -1,6 +1,7 @@
-[tool.pytest.ini_options]
-pythonpath = ["."]
-testpaths = ["tests"]
+[project]
+name = "compliance-obligations-api"
+version = "0.1.0"
+requires-python = ">=3.12"
 
 dependencies = [
     "fastapi",
@@ -10,3 +11,13 @@ dependencies = [
     "psycopg[binary]",
     "alembic",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "httpx",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

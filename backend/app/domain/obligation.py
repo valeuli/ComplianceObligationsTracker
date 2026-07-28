@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from enum import Enum
 from uuid import UUID
 
@@ -30,6 +30,13 @@ ALLOWED_STATUS_TRANSITIONS: dict[ObligationStatus, set[ObligationStatus]] = {
 }
 
 
+@dataclass(frozen=True)
+class StatusChange:
+    previous_status: ObligationStatus
+    new_status: ObligationStatus
+    changed_at: datetime
+
+
 @dataclass
 class Obligation:
     id: UUID
@@ -47,7 +54,7 @@ class Obligation:
     def available_transitions(self) -> set[ObligationStatus]:
         return set(ALLOWED_STATUS_TRANSITIONS[self.status])
 
-    def transition_to(self, new_status: ObligationStatus) -> None:
+    def transition_to(self, new_status: ObligationStatus, *, changed_at: datetime) -> StatusChange:
         allowed_statuses = self.available_transitions()
         if new_status not in allowed_statuses:
             raise InvalidStatusTransition(
@@ -57,8 +64,14 @@ class Obligation:
         if new_status == ObligationStatus.SUBMITTED and self.requires_document and not self.document_name:
             raise RequiredDocumentMissing("A document is required before submitting this obligation.")
 
+        previous_status = self.status
         self.status = new_status
         self.version += 1
+        return StatusChange(
+            previous_status=previous_status,
+            new_status=new_status,
+            changed_at=changed_at,
+        )
 
     def is_overdue(self, current_date: date) -> bool:
         return current_date > self.due_date and self.status not in {

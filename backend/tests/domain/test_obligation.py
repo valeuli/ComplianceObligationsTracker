@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -10,9 +10,11 @@ from app.domain import (
     ObligationStatus,
     ObligationType,
     RequiredDocumentMissing,
+    StatusChange,
 )
 
 FIXED_OBLIGATION_ID = UUID("123e4567-e89b-12d3-a456-426614174000")
+FIXED_CHANGED_AT = datetime(2026, 1, 15, 12, 30, tzinfo=timezone.utc)
 
 
 def make_obligation(
@@ -60,10 +62,15 @@ def test_allowed_transitions(
 ) -> None:
     obligation = make_obligation(status=start_status)
 
-    obligation.transition_to(target_status)
+    event = obligation.transition_to(target_status, changed_at=FIXED_CHANGED_AT)
 
     assert obligation.status == target_status
     assert obligation.version == 1
+    assert event == StatusChange(
+        previous_status=start_status,
+        new_status=target_status,
+        changed_at=FIXED_CHANGED_AT,
+    )
 
 
 @pytest.mark.parametrize(
@@ -80,7 +87,7 @@ def test_invalid_transitions_do_not_mutate_state(
     obligation = make_obligation(status=start_status)
 
     with pytest.raises(InvalidStatusTransition):
-        obligation.transition_to(target_status)
+        obligation.transition_to(target_status, changed_at=FIXED_CHANGED_AT)
 
     assert obligation.status == start_status
     assert obligation.version == 0
@@ -94,7 +101,7 @@ def test_required_document_blocks_submission_when_missing() -> None:
     )
 
     with pytest.raises(RequiredDocumentMissing):
-        obligation.transition_to(ObligationStatus.SUBMITTED)
+        obligation.transition_to(ObligationStatus.SUBMITTED, changed_at=FIXED_CHANGED_AT)
 
     assert obligation.status == ObligationStatus.IN_PROGRESS
     assert obligation.version == 0
@@ -116,10 +123,15 @@ def test_submission_allowed_when_document_rule_is_satisfied(
         document_name=document_name,
     )
 
-    obligation.transition_to(ObligationStatus.SUBMITTED)
+    event = obligation.transition_to(ObligationStatus.SUBMITTED, changed_at=FIXED_CHANGED_AT)
 
     assert obligation.status == ObligationStatus.SUBMITTED
     assert obligation.version == 1
+    assert event == StatusChange(
+        previous_status=ObligationStatus.IN_PROGRESS,
+        new_status=ObligationStatus.SUBMITTED,
+        changed_at=FIXED_CHANGED_AT,
+    )
 
 
 @pytest.mark.parametrize(
@@ -177,3 +189,11 @@ def test_available_transitions(status: ObligationStatus, expected: set[Obligatio
     obligation = make_obligation(status=status)
 
     assert obligation.available_transitions() == expected
+
+
+def test_changed_at_is_preserved_exactly() -> None:
+    obligation = make_obligation(status=ObligationStatus.PENDING)
+
+    event = obligation.transition_to(ObligationStatus.IN_PROGRESS, changed_at=FIXED_CHANGED_AT)
+
+    assert event.changed_at is FIXED_CHANGED_AT
