@@ -9,7 +9,7 @@ import app.models  # noqa: F401  # Register models in Base.metadata
 
 config = context.config
 
-if config.config_file_name is not None:
+if config.config_file_name:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
