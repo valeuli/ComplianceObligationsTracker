@@ -11,6 +11,7 @@ from app.domain import (
     ObligationType,
     RequiredDocumentMissing,
     StatusChange,
+    TransitionOption,
 )
 
 FIXED_OBLIGATION_ID = UUID("123e4567-e89b-12d3-a456-426614174000")
@@ -197,3 +198,28 @@ def test_changed_at_is_preserved_exactly() -> None:
     event = obligation.transition_to(ObligationStatus.IN_PROGRESS, changed_at=FIXED_CHANGED_AT)
 
     assert event.changed_at is FIXED_CHANGED_AT
+
+
+def test_transition_options_include_document_required_reason() -> None:
+    obligation = make_obligation(
+        status=ObligationStatus.IN_PROGRESS,
+        requires_document=True,
+        document_name=None,
+    )
+
+    assert obligation.transition_options() == [
+        TransitionOption(status=ObligationStatus.PENDING, enabled=True),
+        TransitionOption(
+            status=ObligationStatus.SUBMITTED,
+            enabled=False,
+            reason="document_required",
+        ),
+    ]
+
+
+def test_transition_options_for_done_only_allow_reopen() -> None:
+    obligation = make_obligation(status=ObligationStatus.DONE)
+
+    assert obligation.transition_options() == [
+        TransitionOption(status=ObligationStatus.IN_PROGRESS, enabled=True),
+    ]

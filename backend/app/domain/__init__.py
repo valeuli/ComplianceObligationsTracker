@@ -1,5 +1,5 @@
 from .errors import InvalidStatusTransition, RequiredDocumentMissing
-from .obligation import Obligation, ObligationStatus, ObligationType, StatusChange
+from .obligation import Obligation, ObligationStatus, ObligationType, StatusChange, TransitionOption
 
 __all__ = [
     "InvalidStatusTransition",
@@ -8,4 +8,5 @@ __all__ = [
     "ObligationStatus",
     "ObligationType",
     "StatusChange",
+    "TransitionOption",
 ]
