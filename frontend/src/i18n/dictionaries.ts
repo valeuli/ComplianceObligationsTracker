@@ -1,0 +1,61 @@
+import { en } from './en'
+import { es } from './es'
+
+export interface Dictionary {
+  app: {
+    title: string
+    subtitle: string
+    description: string
+  }
+  actions: {
+    newObligation: string
+  }
+  filters: {
+    label: string
+    all: string
+    pending: string
+    in_progress: string
+    submitted: string
+    done: string
+  }
+  kpis: {
+    total: string
+    pending: string
+    in_progress: string
+    submitted: string
+    done: string
+    overdue: string
+    due_30_days: string
+  }
+  fields: {
+    title: string
+    type: string
+    owner: string
+    due_date: string
+    overdue: string
+    noResults: string
+    emptyState: string
+    dueSoon: string
+  }
+  statuses: {
+    pending: string
+    in_progress: string
+    submitted: string
+    done: string
+  }
+  types: {
+    annual_report: string
+    franchise_tax: string
+    boi_report: string
+    registered_agent_renewal: string
+  }
+}
+
+export const dictionaries: Record<'en' | 'es', Dictionary> = {
+  en,
+  es,
+}
+
+export function getDictionary(locale: 'en' | 'es'): Dictionary {
+  return dictionaries[locale]
+}
