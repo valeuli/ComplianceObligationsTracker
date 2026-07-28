@@ -13,7 +13,7 @@ class Base(DeclarativeBase):
 
 
 def get_database_url(database_url: str | None = None) -> str:
-    if database_url is not None:
+    if database_url:
         return database_url
     return os.getenv("DATABASE_URL", DEFAULT_DATABASE_URL)
 

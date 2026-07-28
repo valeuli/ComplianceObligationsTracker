@@ -24,18 +24,7 @@ def create_obligation(
     request: CreateObligationRequest,
     service: ServiceDep,
 ) -> ObligationResponse:
-    created = service.create(
-        CreateObligationData(
-            type=request.type,
-            title=request.title,
-            description=request.description,
-            due_date=request.due_date,
-            owner=request.owner,
-            requires_document=request.requires_document,
-            document_name=request.document_name,
-            company_tax_id=request.company_tax_id,
-        )
-    )
+    created = service.create(CreateObligationData(**request.model_dump()))
     return ObligationResponse.from_domain(
         created,
         audit_history=service.get_audit_history(created.id),
@@ -71,7 +60,7 @@ def update_obligation(
     obligation_id: Annotated[UUID, Path(description="Obligation UUID")],
     service: ServiceDep,
 ) -> ObligationResponse:
-    update_fields = request.model_dump(exclude_none=True, exclude={"expected_version"})
+    update_fields = request.model_dump(exclude_unset=True, exclude={"expected_version"})
     updated = service.update(
         obligation_id,
         expected_version=request.expected_version,
