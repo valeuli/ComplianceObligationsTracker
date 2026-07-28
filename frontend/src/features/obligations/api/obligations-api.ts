@@ -7,6 +7,7 @@ import type {
   ObligationStatus,
   ObligationSummary,
   ObligationType,
+  UpdateObligationInput,
   TransitionOption,
 } from '../types'
 
@@ -70,6 +71,26 @@ export async function createObligation(input: CreateObligationInput): Promise<Ob
   })
 
   return parseObligationDetail(payload)
+}
+
+export async function updateObligation(
+  obligationId: string,
+  input: UpdateObligationInput & { expected_version: number },
+): Promise<ObligationDetail> {
+  const payload = await requestJson(`/api/obligations/${obligationId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      ...input,
+    }),
+  })
+
+  return parseObligationDetail(payload)
+}
+
+export async function deleteObligation(obligationId: string): Promise<void> {
+  await requestJson(`/api/obligations/${obligationId}`, {
+    method: 'DELETE',
+  })
 }
 
 async function requestJson(path: string, init?: RequestInit): Promise<unknown> {

@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 
 import { getObligation, ApiRequestError } from '@/features/obligations/api/obligations-api'
 import { ButtonLink } from '@/components/ui/button'
+import { DeleteObligationButton } from '@/features/obligations/components/delete-obligation-button'
 import { StatusBadge } from '@/features/obligations/components/status-badge'
 import { TransitionActionForm } from '@/features/obligations/components/transition-action-form'
 import type { ObligationDetail } from '@/features/obligations/types'
@@ -55,9 +56,20 @@ export default async function ObligationDetailPage({ params }: PageProps) {
               <p className="max-w-3xl text-sm text-slate-600">{dictionary.detail.description}</p>
             </div>
 
-            <ButtonLink href={`/${locale}`} variant="secondary">
-              {dictionary.detail.backToDashboard}
-            </ButtonLink>
+            <div className="flex flex-wrap gap-2">
+              <ButtonLink href={`/${locale}/obligations/${id}/edit`} variant="secondary">
+                {dictionary.detail.editObligation}
+              </ButtonLink>
+              <DeleteObligationButton
+                locale={locale}
+                obligationId={id}
+                obligationTitle={obligation.title}
+                dictionary={dictionary}
+              />
+              <ButtonLink href={`/${locale}`} variant="secondary">
+                {dictionary.detail.backToDashboard}
+              </ButtonLink>
+            </div>
           </div>
         </div>
       </header>

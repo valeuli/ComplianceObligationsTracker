@@ -1,10 +1,15 @@
 'use server'
 
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
-import { ApiRequestError, transitionObligation } from '@/features/obligations/api/obligations-api'
-import type { ApiErrorCode, ObligationStatus, TransitionActionState } from '@/features/obligations/types'
+import { ApiRequestError, deleteObligation, transitionObligation } from '@/features/obligations/api/obligations-api'
+import type {
+  ApiErrorCode,
+  DeleteObligationActionState,
+  ObligationStatus,
+  TransitionActionState,
+} from '@/features/obligations/types'
 
 export async function transitionObligationAction(
   _previousState: TransitionActionState,
@@ -83,4 +88,31 @@ function normalizeErrorCode(code: ApiErrorCode): ApiErrorCode {
   }
 
   return code
+}
+
+export async function deleteObligationAction(
+  _previousState: DeleteObligationActionState,
+  formData: FormData,
+): Promise<DeleteObligationActionState> {
+  const locale = readLocale(formData.get('locale'))
+  const obligationId = readString(formData.get('obligation_id'), 'obligation_id')
+
+  try {
+    await deleteObligation(obligationId)
+  } catch (error) {
+    if (error instanceof ApiRequestError) {
+      return {
+        status: 'error',
+        code: normalizeErrorCode(error.code),
+      }
+    }
+
+    return {
+      status: 'error',
+      code: 'network_error',
+    }
+  }
+
+  revalidatePath(`/${locale}`)
+  redirect(`/${locale}`)
 }

@@ -68,6 +68,8 @@ export type TransitionActionState =
   | { status: 'success' }
   | { status: 'error'; code: ApiErrorCode }
 
+export type ObligationMutationActionState = { status: 'idle' } | { status: 'error'; code: ApiErrorCode }
+
 export interface CreateObligationInput {
   type: ObligationType
   title: string
@@ -79,4 +81,17 @@ export interface CreateObligationInput {
   company_tax_id: string
 }
 
-export type CreateObligationActionState = { status: 'idle' } | { status: 'error'; code: ApiErrorCode }
+export interface UpdateObligationInput {
+  type?: ObligationType
+  title?: string
+  description?: string
+  due_date?: string
+  owner?: string
+  requires_document?: boolean
+  document_name?: string | null
+  company_tax_id?: string
+}
+
+export type CreateObligationActionState = ObligationMutationActionState
+export type UpdateObligationActionState = ObligationMutationActionState
+export type DeleteObligationActionState = ObligationMutationActionState

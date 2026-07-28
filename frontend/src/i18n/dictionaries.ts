@@ -38,6 +38,34 @@ export interface Dictionary {
       api: string
     }
   }
+  edit: {
+    title: string
+    description: string
+    backToDetail: string
+    submit: string
+    submitting: string
+    fields: {
+      type: string
+      title: string
+      description: string
+      dueDate: string
+      owner: string
+      requiresDocument: string
+      documentName: string
+      companyTaxId: string
+    }
+    help: {
+      type: string
+      documentOptional: string
+      documentRequired: string
+      companyTaxId: string
+    }
+    errors: {
+      validation: string
+      network: string
+      api: string
+    }
+  }
   filters: {
     label: string
     all: string
@@ -98,6 +126,15 @@ export interface Dictionary {
     documentRequired: string
     networkError: string
     genericError: string
+    recordNotFound: string
+    editObligation: string
+    deleteObligation: string
+    deleteTitle: string
+    deleteConfirmMessage: string
+    deleteConfirmWarning: string
+    confirmDelete: string
+    cancelDelete: string
+    deleting: string
     reloadRecord: string
     retry: string
     transitionTo: string
